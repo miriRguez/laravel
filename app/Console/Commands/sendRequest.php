@@ -2,7 +2,9 @@
 
 namespace App\Console\Commands;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
+use App\Jobs\ProcessRequest;
+use App\Http\Controllers\RequestDispatcherController;
+
 
 class sendRequest extends Command
 {
@@ -11,14 +13,14 @@ class sendRequest extends Command
      *
      * @var string
      */
-    protected $signature = 'make:postRequest {params}';
+    protected $signature = 'make:postRequest {--url=?} {params?*}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'It will send a POST request to https://atomic.incfile.com/fakepost';
+    protected $description = 'It will send a POST request to the given URL or by default to https://atomic.incfile.com/fakepost';
 
     /**
      * Create a new command instance.
@@ -37,9 +39,13 @@ class sendRequest extends Command
      */
     public function handle()
     {
-        echo 'prueba 1';
-        $response = Http::post('http://test.com/users', []);
-        dd($response->status());
-        dd($response->body());
+        $url_request = 'http://test.com/users';
+        $url = $this->option('url');
+        $params = $this->arguments();
+        if($url != '?') {
+            $url_request = $url;
+        }
+
+        RequestDispatcherController::postRequest($url_request, $params['params']);
     }
 }
